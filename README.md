@@ -28,11 +28,11 @@ dump( storage ) //show all methods
 
 Download the Json key file from your GCP console, copy it into your project directory. 
 
-The followings are the public methods you can use:
+The followings are the public **methods** you can use:
 
 * getFile
 
- Get details of file. Return struct;
+ Get details of file. Return struct.
 
   ```sh
   getFile( rrequired String fileId ) 
@@ -41,7 +41,7 @@ The followings are the public methods you can use:
 
 * getSignedUrl
   
- Get signed url, valid until now() + minutes passed in arguments. Return url as string;
+ Get signed url, valid until now() + minutes passed in arguments. Return url as string.
 
   ```sh
   getSignedUrl( required String minutes, required String fileId ) 
@@ -59,7 +59,7 @@ The followings are the public methods you can use:
 
  Get files in bucket. Return array of struct.
 
- You can search for files (including path) starting with **prefix** argument
+ You can search for files (including path) starting with **prefix** argument.
 
   ```sh
   listFiles( String prefix ) 
@@ -91,9 +91,9 @@ Download file. It is possible to set the filename by passing the **fileName** ar
 > :warning: The **fileId** is the full path offile on GPC, without bucket.
 
 
-## For testing
+## For testing (very simple)
 
-1. Use CommandBox. Start server and point your brower to http://127.0.0.1:9011/
+1. Use CommandBox. Start server and point your brower to http://127.0.0.1:9011/tests/index.cfm
 
 2. Download the keys json file from your GCP console, copy it into the tests folder.
 
