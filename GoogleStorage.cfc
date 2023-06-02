@@ -29,7 +29,7 @@ component displayname="GoogleStorage" output="false" accessors="true" {
 	/**
 	 * 
 	 */
-	public any function getSignedUrl(
+	public String function getSignedUrl(
 		required String fileId,
 		required Numeric minutes
 	) {
