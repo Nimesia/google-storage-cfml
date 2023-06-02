@@ -2,7 +2,7 @@
 <cfparam name="action" default="">
 
 <cfset menuItems = QueryNew("item", "varchar", [
-	["insertFile"],	["listFiles" ], ["deleteFileById"], ["getSignedUrl"], ["getFile"] 
+	["insertFile"],	["listFiles" ], ["deleteFileById"], ["getSignedUrl"], ["getFile"], ["downloadFile"] 
 ])>
 
 <p>
@@ -12,24 +12,44 @@
 	</cfoutput>
 </p>
 
-<cfif action is "getSignedUrl">
+<cfif action is "downloadFile">
 
 	<cfset storage = loadStorage()>
 
 	<cfabort>
 	
 	<cfset result = storage.downloadFile( 
-		title=title,
+		fileId=fileId,
 		type="image/png"
 	)>
 	
 	<cfdump var="#result#">
 	<cfabort>
 	
-	<cfset title = "test#randRange(1,199)#">
+	<cfset fileId = "test#randRange(1,199)#">
 	<cfset path = "folder/folder2">
 	
-	<cfdump var="#storage.listFiles(title=title, path=path)#">
+	<cfdump var="#storage.listFiles(fileId=fileId, path=path)#">
+
+</cfif>
+
+<cfif action is "getSignedUrl">
+
+	<cfset storage = loadStorage()>
+
+	<cfset fileName = ExpandPath('/tests/assets/img/home-#RandRange(1,4)#.png')>
+
+	<cfset fileId = "tests/#TimeFormat(now(), 'HHmmss')#-#ListLast(fileName, '\')#">
+	
+	<cfset result = storage.insertFile( 
+		filename=filename,
+		fileId=fileId,
+		mimeType="image/png"
+	)>
+
+	<cfset uri = storage.getSignedUrl( result.name, 10 )>
+
+	<cfdump var="#uri#">
 
 </cfif>
 
@@ -39,11 +59,11 @@
 
 	<cfset fileName = ExpandPath('/tests/assets/img/home-#RandRange(1,4)#.png')>
 
-	<cfset title = "tests/#TimeFormat(now(), 'HHmmss')#-#ListLast(fileName, '\')#">
+	<cfset fileId = "tests/#TimeFormat(now(), 'HHmmss')#-#ListLast(fileName, '\')#">
 	
 	<cfset result = storage.insertFile( 
 		filename=filename,
-		title=title,
+		fileId=fileId,
 		mimeType="image/png"
 	)>
 
@@ -59,11 +79,11 @@
 
 	<cfset fileName = ExpandPath('/tests/assets/img/home-#RandRange(1,4)#.png')>
 
-	<cfset title = "tests/#TimeFormat(now(), 'HHmmss')#-#ListLast(fileName, '\')#">
+	<cfset fileId = "tests/#TimeFormat(now(), 'HHmmss')#-#ListLast(fileName, '\')#">
 	
 	<cfset result = storage.insertFile( 
 		filename=filename,
-		title=title,
+		fileId=fileId,
 		mimeType="image/png"
 	)>
 
@@ -77,11 +97,11 @@
 	
 	<cfset fileName = ExpandPath('/tests/assets/img/home-#RandRange(1,4)#.png')>
 
-	<cfset title = "tests/#TimeFormat(now(), 'HHmmss')#-#ListLast(fileName, '\')#">
+	<cfset fileId = "tests/#TimeFormat(now(), 'HHmmss')#-#ListLast(fileName, '\')#">
 	
 	<cfset result = storage.insertFile( 
 		filename=filename,
-		title=title,
+		fileId=fileId,
 		mimeType="image/png"
 	)>
 

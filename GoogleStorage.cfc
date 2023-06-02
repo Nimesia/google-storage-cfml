@@ -31,25 +31,18 @@ component displayname="GoogleStorage" output="false" accessors="true" {
 
 
 	public any function getSignedUrl(
-		required Integer minutes,
-		required String GCPFile
+		required String fileId,
+		required Numeric minutes
 	) {
-
-		var bucketName = getBucket();
-		var blobName = arguments.GCPFile;
 
 		var blobInfo = CreateObject("java", "com.google.cloud.storage.BlobInfo");
 		var BlobId = CreateObject("java", "com.google.cloud.storage.BlobId");
 
 		var uri = getStoreService().signUrl(
-					blobInfo.newBuilder(BlobId.of(bucketName, blobName)).build(), 
+					blobInfo.newBuilder(BlobId.of(getBucket(), arguments.fileId)).build(), 
 					arguments.minutes,
 					CreateObject("java", "java.util.concurrent.TimeUnit").MINUTES,
-					[
-						CreateObject("java", "com.google.cloud.storage.Storage$SignUrlOption").signWith(
-							getCredentials()
-						)
-					]
+					[]
 				);
 
 		return uri.toString();
