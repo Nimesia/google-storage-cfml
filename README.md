@@ -69,15 +69,16 @@ The followings are the public methods you can use:
 
 Put file in bucket. Return struct of detail of file.
 
+  ```sh
+  insertFile( required String fullPath, required String fileId, required String mimeType ) 
+  ```
+
 Arguments:
 
       - filePath: full path of file to upload
       - fileId: full path of file on GPC, without bucket name
       - mimeType: mime type of file
 
-  ```sh
-  insertFile( required String fullPath, required String fileId, required String mimeType ) 
-  ```
 
 * downloadFromUrl
 
