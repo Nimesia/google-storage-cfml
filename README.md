@@ -1,5 +1,5 @@
-# Google Store for CFML
-Google Storage (com.google.cloud.storage) wrapper for CFML, tested on Lucee 5.4.
+# Google Storage for CFML
+Google Cloud Storage [(com.google.cloud.storage)](https://cloud.google.com/java/docs/reference/google-cloud-storage/latest/com.google.cloud.storage.Storage) wrapper for CFML, tested on Lucee 5.4.
 
 ## Install
 1. Download all required jars from [jar-download.com](
@@ -18,7 +18,7 @@ https://jar-download.com/artifacts/com.google.cloud/google-cloud-storage)
 Load class:
 
 ```
-var storage = GoogleStorage( 
+var storage = mew GoogleStorage( 
         bucket="YOUR_BUCKET_NAME", 
         pathToJsonFile=ExpandPath("/path/keys.json") 
     )
@@ -26,8 +26,7 @@ var storage = GoogleStorage(
 dump( storage ) //show all methods
 ```
 
-
-Download the Json key file from your GCP console, copy them into your project directory. 
+Download the Json key file from your GCP console, copy it into your project directory. 
 
 
 ## For testing

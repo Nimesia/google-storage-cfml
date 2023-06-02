@@ -33,6 +33,26 @@
 
 </cfif>
 
+<cfif action IS "deleteFileById">
+
+	<cfset storage = loadStorage()>
+
+	<cfset fileName = ExpandPath('/tests/assets/img/home-#RandRange(1,4)#.png')>
+
+	<cfset title = "tests/#TimeFormat(now(), 'HHmmss')#-#ListLast(fileName, '\')#">
+	
+	<cfset result = storage.insertFile( 
+		filename=filename,
+		title=title,
+		mimeType="image/png"
+	)>
+
+	<cfset res = storage.deleteFileById( result.name )>
+
+	<cfdump var="#res#">
+
+</cfif>
+
 <cfif action IS "insertFile">
 
 	<cfset storage = loadStorage()>

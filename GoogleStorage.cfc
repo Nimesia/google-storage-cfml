@@ -9,7 +9,6 @@ component displayname="GoogleStorage" output="false" accessors="true" {
 		required string pathToJsonFile
 	) {
 
-		//setPathToKeyFile( arguments.pathToKeyFile );
 		setBucket( arguments.bucket );
 
 		var configFile = CreateObject("java", "java.io.FileInputStream").init( arguments.pathToJsonFile );
@@ -85,23 +84,16 @@ component displayname="GoogleStorage" output="false" accessors="true" {
 		return result.results;
 	}
 
-	public any function deleteFileById(required string fileId) {
 
-		var result = {};
-		result.results = {};
-		result.results.error = "";
-		
-		try {
-			result.results = variables.service.objects().delete(variables.bucket, fileId).execute();
-			result.results = {removed: true};
-		
-		} catch (any cfcatch) {
-		
-			result.results.error = cfcatch.message & " " & cfcatch.detail;
-		
-		}
-		
-		return result.results;
+	/**
+	 * 
+	 */
+	public Boolean function deleteFileById(required string fileId) {
+
+		var result = getStoreService().delete( getBucket(), arguments.fileId, [] );
+
+		return result;
+
 	}
 
 
@@ -130,14 +122,13 @@ component displayname="GoogleStorage" output="false" accessors="true" {
 			.iterateAll()
 			.iterator();
   
-		while ( record.hasNext()) {
+		while ( record.hasNext() ) {
 
 			var obj = record.next();
 
-			results.add( {
-				"name" = obj.getName(),
-				"sisze" = obj.getSize()
-			})
+			results.add(
+				createFile( obj )
+			);
 
 		}
 
@@ -176,14 +167,13 @@ component displayname="GoogleStorage" output="false" accessors="true" {
 	public Struct function insertFile(
          required string filename, //filePath
          required String title, 
-         required string mimeType,
-         String path
+         required string mimeType
       ) {
 
 		var blobInfo = CreateObject("java", "com.google.cloud.storage.BlobInfo");
 		var BlobId = CreateObject("java", "com.google.cloud.storage.BlobId");
 
-		if (!FileExists( arguments.fileName )) {
+		if ( !FileExists( arguments.fileName ) ) {
 
 			raiseError( 
 				type="FileToUploadNotExists", 
@@ -194,7 +184,7 @@ component displayname="GoogleStorage" output="false" accessors="true" {
 
 		try{
 
-			var outcome = getStoreService().create(
+			var obj = getStoreService().create(
 					blobInfo
 						.newBuilder( BlobId.of( getBucket(), arguments.title ))
 						.setContentType( arguments.mimeType )
@@ -210,13 +200,7 @@ component displayname="GoogleStorage" output="false" accessors="true" {
 
 		}
 
-
-		var result = {
-			size = outcome.getSize(),
-			name = outcome.getName()
-		}
-
-		return result;
+		return createFile( obj );
 	}
 
 
@@ -232,6 +216,23 @@ component displayname="GoogleStorage" output="false" accessors="true" {
 			object  = arguments.error
 		)
 
+	}
+
+	private Struct function createFile( required Object obj ){
+
+		var result = {
+			"size" = obj.getSize(),
+			"name" = obj.getName(),
+			"bucket" = obj.getBlobId().getBucket(),
+			"createdAd" = epochToDate( obj.getCreateTime() )
+		}
+
+		return result;
+
+	}
+
+	private Date function epochToDate( required Number milliseconds ){
+		return DateAdd("s", arguments.milliseconds/1000, "January 1 1970 00:00:00");
 	}
 
 }
