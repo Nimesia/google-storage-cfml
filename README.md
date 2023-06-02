@@ -93,6 +93,8 @@ Download file. It is possible to set the filename by passing the **fileName** ar
 
 ## For testing
 
-1. Download the keys json file from your GCP console, copy them into the test folder.
+1. Use CommandBox. Start server and point your brower to http://127.0.0.1:9011/
 
-2. Fit the values in the "loadStorage()" function in /tests/index.cfm
+2. Download the keys json file from your GCP console, copy it into the tests folder.
+
+3. Fit the values in the "loadStorage()" function in /tests/index.cfm
