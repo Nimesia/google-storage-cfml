@@ -327,6 +327,17 @@ component displayname="GoogleStorage" output="false" accessors="true" {
 	 * 
 	 */
 	public struct function listFiles() {
+
+
+		var outcome = getStoreService().list( getBucket() )
+
+		dump( outcome );
+		abort;
+
+
+
+
+		/*
 		var result = {};
 		result.results = {};
 		result.results.error = "";
@@ -337,6 +348,7 @@ component displayname="GoogleStorage" output="false" accessors="true" {
 			result.results.error = cfcatch.message & " " & cfcatch.detail;
 		}
 		return result.results;
+		*/
 	}
 
 	public function downloadToBrowser(required string downloadUrl, required string mimeType, required string fileName) {
@@ -367,44 +379,7 @@ component displayname="GoogleStorage" output="false" accessors="true" {
 	/**
 	 * 
 	 */
-	<!----
-		ORIGINALE 
-	public struct function insertFile(
-         required string filename,
-         required String title, 
-         required string mimeType,
-         String path
-      ) {
-		
-		local.results = {};
-		local.results.error = "";
-		
-		try {
-
-        	if ( !isNull( path ) ) {
-            	title = "#path#/#title#";
-         	}
-
-			var body = CreateObject("java", "com.google.api.services.storage.model.StorageObject")
-						.init()
-                    	.setName( title );
-
-			var fileContent = CreateObject("java", "java.io.File").init( filename );
-			var mediaContent = CreateObject("java", "com.google.api.client.http.FileContent").init(mimeType, fileContent);
-			
-			local.results = variables.service.objects().insert( variables.bucket, body, mediaContent ).execute();
-
-		} catch (any cfcatch) {
-
-			local.results.error = cfcatch.message & " " & cfcatch.detail;
-		
-		}
-		
-		return local.results;
-	}
-	------------------>
-
-	public struct function insertFile(
+	public Struct function insertFile(
          required string filename, //filePath
          required String title, 
          required string mimeType,
@@ -414,83 +389,55 @@ component displayname="GoogleStorage" output="false" accessors="true" {
 		var blobInfo = CreateObject("java", "com.google.cloud.storage.BlobInfo");
 		var BlobId = CreateObject("java", "com.google.cloud.storage.BlobId");
 
-		var b64file = ToBase64(fileReadBinary( arguments.filename ));
+		if (!FileExists( arguments.fileName )) {
 
-		var res = getStoreService().create(
-			blobInfo
-				.newBuilder( BlobId.of( getBucket(), arguments.title ))
-				.setContentType( arguments.mimeType )
-				.build(),
-			CreateObject("java", "java.io.FileInputStream").init( arguments.filename ),
-			[]
-		)
+			raiseError( 
+				type="FileToUploadNotExists", 
+				message="File [#arguments.fileName#] not exists"
+			)
 
-		dump(res); 
-
-
-		/*
-		var contentFile = CreateObject("java", "java.io.FileInputStream").init( arguments.filename );
-		var blobInfo = CreateObject("java", "com.google.cloud.storage.BlobInfo");
-		var BlobId = CreateObject("java", "com.google.cloud.storage.BlobId");
-
-		var service = getStoreService();
-
-		var u = service.signUrl(
-			blobInfo.newBuilder(BlobId.of( getBucket(), arguments.title )).build(), 
-			1,
-			CreateObject("java", "java.util.concurrent.TimeUnit").MINUTES,
-			[]
-			//CreateObject("java", "java.io.FileInputStream").init( arguments.filename ),
-		)
-
-		dump(u.toString());
-
-		//dump( service );
-		abort;
-		
-
-		var blobInfo = CreateObject("java", "com.google.cloud.storage.BlobInfo");
-		var BlobId = CreateObject("java", "com.google.cloud.storage.BlobId");
-
-		service.createFrom(
-			blobInfo.newBuilder(BlobId.of( getBucket(), arguments.title )).build(), 
-			CreateObject("java", "java.io.FileInputStream").init( arguments.filename ),
-			[
-				CreateObject("java", "com.google.cloud.storage.Storage$BlobWriteOption")
-			]
-		)
-		*/
-
-		abort;
-		
-		<!--------
-		local.results = {};
-		local.results.error = "";
-		
-		try {
-
-        	if ( !isNull( path ) ) {
-            	title = "#path#/#title#";
-         	}
-
-			var body = CreateObject("java", "com.google.api.services.storage.model.StorageObject")
-						.init()
-                    	.setName( title );
-
-			var fileContent = CreateObject("java", "java.io.File").init( filename );
-			var mediaContent = CreateObject("java", "com.google.api.client.http.FileContent").init(mimeType, fileContent);
-			
-			local.results = variables.service.objects().insert( variables.bucket, body, mediaContent ).execute();
-
-		} catch (any cfcatch) {
-
-			local.results.error = cfcatch.message & " " & cfcatch.detail;
-		
 		}
-		
-		return local.results;
-		--------->
+
+		try{
+
+			var outcome = getStoreService().create(
+					blobInfo
+						.newBuilder( BlobId.of( getBucket(), arguments.title ))
+						.setContentType( arguments.mimeType )
+						.build(),
+					CreateObject("java", "java.io.FileInputStream")
+						.init( arguments.filename ),
+					[]
+				)
+
+		} catch( any error ) {
+
+			raiseError(type="NotCreateFileInStore", message="#error.message#", error=error)
+
+		}
+
+
+		var result = {
+			size = outcome.getSize(),
+			name = outcome.getName()
+		}
+
+		return result;
 	}
 
+
+	/*
+		Private methods
+	*/
+
+	private Void function raiseError( required String type, required String message="",  Struct error={} ){
+
+		throw(
+			type    = "GoogleStorageCfml.errors.#arguments.type#",
+			message = arguments.message,
+			object  = arguments.error
+		)
+
+	}
 
 }
