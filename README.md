@@ -85,7 +85,7 @@ Download file. It is possible to set the filename by passing the **fileName** ar
   downloadFromUrl( required String fileId, String fileName ) 
   ```
 
-> :warning: The **fileId** is the full path file, without bucket.
+> :warning: The **fileId** is the full path offile on GPC, without bucket.
 
 
 ## For testing
