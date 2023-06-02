@@ -1,63 +1,92 @@
-﻿<!----
-<cfset storage = new GoogleStorage(
-	serviceAccountID    = "117579987863854591514",
-	serviceAccountEmail = "opus-zeus@opus-plus-dev.iam.gserviceaccount.com",
-	pathToKeyFile       = ExpandPath("secretKey.p12"),
-	applicationName     = "theGoogleStorage",
-	bucket              = 'opus-dev-bucket'
-)>
------>
-<cfset storage = new GoogleStorage(
-	serviceAccountID    = "117579987863854591514",
-	serviceAccountEmail = "opus-zeus@opus-plus-dev.iam.gserviceaccount.com",
-	pathToKeyFile       = ExpandPath("/tests/config/key-binary.p12"),
-	pathToJsonFile      = ExpandPath("/tests/config/key-b98b738d31f2.json"),
-	applicationName     = "theGoogleStorage",
-	bucket              = 'opus-dev-bucket'
-	/*
-	pathToKeyFile = ExpandPath('/opus-plus-dev-b98b738d31f2.json'),
-	bucket        = 'opus-dev-bucket'
-	*/
-)>
+﻿<h2>Simple tests</h2>
+<cfparam name="action" default="">
 
-<!--- <cfdump  var = "#createObject("java","com.google.api.services.storage.Storage")#"> ---->
-<cfset build ="#storage.build()#">
+<cfset menuItems = QueryNew("item", "varchar", [
+	["insertFile"],	["listFiles" ], ["deleteFileById"], ["getSignedUrl"], ["getFile"] 
+])>
+
+<p>
+	Methods:
+	<cfoutput query="#menuItems#">
+		<a href="?action=#item#">#item#</a> |
+	</cfoutput>
+</p>
+
+<cfif action is "getSignedUrl">
+
+	<cfset storage = loadStorage()>
+
+	<cfabort>
+	
+	<cfset result = storage.downloadFile( 
+		title=title,
+		type="image/png"
+	)>
+	
+	<cfdump var="#result#">
+	<cfabort>
+	
+	<cfset title = "test#randRange(1,199)#">
+	<cfset path = "folder/folder2">
+	
+	<cfdump var="#storage.listFiles(title=title, path=path)#">
+
+</cfif>
+
+<cfif action IS "insertFile">
+
+	<cfset storage = loadStorage()>
+
+	<cfset fileName = ExpandPath('/tests/assets/img/home-#RandRange(1,4)#.png')>
+
+	<cfset title = "tests/#TimeFormat(now(), 'HHmmss')#-#ListLast(fileName, '\')#">
+	
+	<cfset result = storage.insertFile( 
+		filename=filename,
+		title=title,
+		mimeType="image/png"
+	)>
+
+	<cfdump var="#result#">
+
+</cfif>
+
+<cfif action IS "getFile">
+
+	<cfset storage = loadStorage()>
+	
+	<cfset fileName = ExpandPath('/tests/assets/img/home-#RandRange(1,4)#.png')>
+
+	<cfset title = "tests/#TimeFormat(now(), 'HHmmss')#-#ListLast(fileName, '\')#">
+	
+	<cfset result = storage.insertFile( 
+		filename=filename,
+		title=title,
+		mimeType="image/png"
+	)>
+
+	<cfdump var="#result#">
+
+</cfif>
+
+<cfif action IS "listFiles">
+	
+	<cfset storage = loadStorage()>
+
+	<cfset files = storage.listFiles()>
+
+	<cfdump var="#files#">
+
+</cfif>
 
 
-<!--- <cfdump var="#storage.insertFile(title = 'test#randRange(1,199)#', filename = ExpandPath('/tests/pdf/prova1.pdf'),  mimeType = 'application/pdf')#">
-<cfdump var="#storage.downloadFile(fileId = 'test69', type="jpg")#"> --->
-<cfset fileName = ExpandPath('/tests/assets/img/home-#RandRange(1,4)#.png')>
+<cffunction name="loadStorage">
 
-<cfset title = "tests/#TimeFormat(now(), 'HHmmss')#-#ListLast(fileName, '\')#">
+	<cfset var storage = new GoogleStorage(
+		bucket         = 'opus-dev-bucket',
+		pathToJsonFile = ExpandPath("/tests/config/key-b98b738d31f2.json")
+	)>
 
-<cfset result = storage.insertFile( 
-	filename=filename,
-	title=title,
-	mimeType="image/png"
-)>
-<cfdump var="#result#" expand="true">
+	<cfreturn storage>
 
-<cfdump var="#result#" expand="false">
-
-<cfdump var="#storage.getSignedUrl(
-	expirationDate=CreateDate( 2023, 6, 30 ),
-	GCPFile = result.name
-)#">
-
-<cfabort>
-
-
-
-
-<cfset result = storage.downloadFile( 
-	title=title,
-	type="image/png"
-)>
-
-<cfdump var="#result#">
-<cfabort>
-
-<cfset title = "test#randRange(1,199)#">
-<cfset path = "folder/folder2">
-
-<cfdump var="#storage.listFiles(title=title, path=path)#">
+</cffunction>

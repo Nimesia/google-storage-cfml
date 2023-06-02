@@ -1,4 +1,4 @@
 # Google Store for CFML
-Google Storage wrapper for CFML, tested on Lucee.
+Google Storage (com.google.cloud.storage) wrapper for CFML, tested on Lucee.
 
 

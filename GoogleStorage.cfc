@@ -1,43 +1,15 @@
 component displayname="GoogleStorage" output="false" accessors="true" {
 
 	property name="bucket" type="String";
-	property name="pathToKeyFile" type="String";
 	property name="storeService" type="Object";
 	property name="credentials" type="Object";
 
 	public GoogleStorage function init(
-		required string serviceAccountId, 
 		required string bucket, 
-		required string serviceAccountEmail, 
-		required string pathToKeyFile, 
-		required string pathToJsonFile, 
-		required string applicationName
+		required string pathToJsonFile
 	) {
 
-		variables.serviceAccountId    = arguments.serviceAccountId;
-		variables.serviceAccountEmail = arguments.serviceAccountEmail;
-		variables.pathToKeyFile       = arguments.pathToKeyFile;
-		variables.applicationName     = arguments.applicationName;
-		variables.bucket              = arguments.bucket;   
-
-		variables.HTTPTransport     = CreateObject("java", "com.google.api.client.http.javanet.NetHttpTransport").init();
-		variables.JSONFactory       = CreateObject("java", "com.google.api.client.json.jackson2.JacksonFactory").init();
-		variables.credentialBuilder = CreateObject("java", "com.google.api.client.googleapis.auth.oauth2.GoogleCredential$Builder");
-		variables.storageScopes     = CreateObject("java", "com.google.api.services.storage.StorageScopes");
-		variables.Collections       = CreateObject("java", "java.util.Collections");
-		variables.Arrays            = CreateObject("java", "java.util.Arrays");
-		variables.credential        = "";
-		variables.service           = "";
-
-		variables.storageBuilder = CreateObject("java", "com.google.api.services.storage.Storage$Builder")
-										.init(
-											variables.HTTPTransport,
-											variables.JSONFactory, 
-											NullValue()
-										);
-
-		/**********************************/
-		setPathToKeyFile( arguments.pathToKeyFile );
+		//setPathToKeyFile( arguments.pathToKeyFile );
 		setBucket( arguments.bucket );
 
 		var configFile = CreateObject("java", "java.io.FileInputStream").init( arguments.pathToJsonFile );
@@ -48,7 +20,6 @@ component displayname="GoogleStorage" output="false" accessors="true" {
 		var storage = CreateObject("java", "com.google.cloud.storage.StorageOptions")
 						.newBuilder()
 						.setCredentials( credentials )
-						.setProjectId("opus-plus-dev")
 						.build()
 						.getService();
 
@@ -56,160 +27,9 @@ component displayname="GoogleStorage" output="false" accessors="true" {
 
 		setCredentials( credentials );
 
-
-		/**********************************/										
-
 		return this;
 	}
 
-	/**
-	 * creates storage object
-	 */
-	public struct function build() {
-
-		var result = {};
-		
-		result.credential = "";
-		result.result = {};
-		result.result.success = true;
-		result.result.error = "";
-		
-		/*  
-			Access tokens issued by the Google OAuth 2.0 Authorization Server expire in one hour. 
-        	When an access token obtained using the assertion flow expires, then the application should 
-         	generate another JWT, sign it, and request another access token. 
-         	"https://www.googleapis.com/auth/drive","https://www.googleapis.com/auth/analytics"
-         	https://developers.google.com/accounts/docs/OAuth2ServiceAccount 
-		*/
-		try {
-
-			var keyFile = CreateObject("java", "java.io.File").init( variables.pathToKeyFile );
-
-			result.credential = credentialBuilder
-                                    .setTransport( variables.HTTPTransport )
-                                    .setJsonFactory( variables.JSONFactory )
-                                    .setServiceAccountId( variables.serviceAccountId )
-                                    .setServiceAccountScopes( variables.Collections.singleton( variables.storageScopes.DEVSTORAGE_READ_WRITE ) )
-                                    .setServiceAccountPrivateKeyFromP12File( keyFile )
-                                    .build();
-
-			variables.credentials = result.credential;
-
-		} catch (any cfcatch) {
-			result.result.error = "Credential Object Error: " & cfcatch.message & " - " & cfcatch.detail;
-			result.result.success = false;
-		}
-		if ( result.result.success ) {
-			
-			try {
-
-				variables.service = variables.storageBuilder
-            		.setApplicationName( variables.applicationName )
-            		.setHttpRequestInitializer( result.credential )
-            		.build();
-			
-			} catch (any cfcatch) {
-				
-				result.result.error = "Storage Object Error: " & cfcatch.message & " - " & cfcatch.detail;
-				result.result.success = false;
-			
-			}
-		}
-
-
-		//dump( variables.service );
-		//abort;
-
-		return result;
-	}	
-
-	/*
-	public GoogleStorage function init(
-		required string bucket, 
-		required string pathToKeyFile, 
-	) {
-
-		setPathToKeyFile( arguments.pathToKeyFile );
-		setBucket( arguments.bucket );
-
-		var configFile = CreateObject("java", "java.io.FileInputStream").init( arguments.pathToKeyFile );
-
-		var credentials = CreateObject("java", "com.google.auth.oauth2.ServiceAccountCredentials")
-							.fromStream( configFile );
-
-		var storage = CreateObject("java", "com.google.cloud.storage.StorageOptions")
-						.newBuilder()
-						.setProjectId(projectId)
-						.build()
-						.getService();
-
-		setService( storage );
-
-
-		setCredentials( credentials );
-
-		return this;
-	}
-	*/
-
-	/**
-	 * creates storage object
-	 */
-	public struct function build() {
-
-		var result = {};
-		
-		result.credential = "";
-		result.result = {};
-		result.result.success = true;
-		result.result.error = "";
-		
-		/*  
-			Access tokens issued by the Google OAuth 2.0 Authorization Server expire in one hour. 
-        	When an access token obtained using the assertion flow expires, then the application should 
-         	generate another JWT, sign it, and request another access token. 
-         	"https://www.googleapis.com/auth/drive","https://www.googleapis.com/auth/analytics"
-         	https://developers.google.com/accounts/docs/OAuth2ServiceAccount 
-		*/
-		try {
-
-			var keyFile = CreateObject("java", "java.io.File").init( variables.pathToKeyFile );
-
-			result.credential = credentialBuilder
-                                    .setTransport( variables.HTTPTransport )
-                                    .setJsonFactory( variables.JSONFactory )
-                                    .setServiceAccountId( variables.serviceAccountId )
-                                    .setServiceAccountScopes( variables.Collections.singleton( variables.storageScopes.DEVSTORAGE_READ_WRITE ) )
-                                    .setServiceAccountPrivateKeyFromP12File( keyFile )
-                                    .build();
-
-		} catch (any cfcatch) {
-			result.result.error = "Credential Object Error: " & cfcatch.message & " - " & cfcatch.detail;
-			result.result.success = false;
-		}
-		if ( result.result.success ) {
-			
-			try {
-
-				variables.service = variables.storageBuilder
-            		.setApplicationName( variables.applicationName )
-            		.setHttpRequestInitializer( result.credential )
-            		.build();
-			
-			} catch (any cfcatch) {
-				
-				result.result.error = "Storage Object Error: " & cfcatch.message & " - " & cfcatch.detail;
-				result.result.success = false;
-			
-			}
-		}
-
-
-		//dump( variables.service );
-		//abort;
-
-		return result;
-	}
 
 	public any function getSignedUrl(
 		required Date expirationDate,
@@ -222,20 +42,6 @@ component displayname="GoogleStorage" output="false" accessors="true" {
 
 		var blobInfo = CreateObject("java", "com.google.cloud.storage.BlobInfo");
 		var BlobId = CreateObject("java", "com.google.cloud.storage.BlobId");
-
-		/*
-		var configFile = CreateObject("java", "java.io.FileInputStream").init( ExpandPath('/opus-plus-dev-b98b738d31f2.json') );
-
-		var storage = CreateObject("java", "com.google.cloud.storage.StorageOptions")
-						.newBuilder()
-						.setProjectId(projectId)
-						.build()
-						.getService();
-
-		var credentials = CreateObject("java", "com.google.auth.oauth2.ServiceAccountCredentials")
-							.fromStream( configFile );
-		*/
-
 
 		var uri = getStoreService().signUrl(
 					blobInfo.newBuilder(BlobId.of(bucketName, blobName)).build(), 
@@ -251,29 +57,6 @@ component displayname="GoogleStorage" output="false" accessors="true" {
 		return uri.toString();
 
 	}
-
-	/**
-	 * 
-	 */
-	/*
-	public any function getAccessToken(required struct build) {
-		
-		var result = {};
-		result.results = {};
-		result.results.error = "";
-		
-		try {
-			
-			result.results = build.credential.getAccessToken();
-		
-		} catch (any cfcatch) {
-			
-			result.results.error = cfcatch.message & " " & cfcatch.detail;
-		
-		}
-		return result.results;
-	}
-	*/
 
 	/**
 	 * 
@@ -326,29 +109,41 @@ component displayname="GoogleStorage" output="false" accessors="true" {
 	/**
 	 * 
 	 */
-	public struct function listFiles() {
+	public Array function listFiles(
+		required String prefix="",
+		required String pageSize=100,
+	) {
 
+		var results = [];
 
-		var outcome = getStoreService().list( getBucket() )
+		var options = CreateObject("java", "com.google.cloud.storage.Storage$BlobListOption")
+						//.prefix( 'opus-dev-bucket' );
+		
+		var record = getStoreService().list( 
+				getBucket(), 
+				[ 
+					options
+						.prefix( arguments.prefix ),
+					options
+						.pageSize( arguments.pageSize )//not works
+				]
+			) 
+			.iterateAll()
+			.iterator();
+  
+		while ( record.hasNext()) {
 
-		dump( outcome );
-		abort;
+			var obj = record.next();
 
+			results.add( {
+				"name" = obj.getName(),
+				"sisze" = obj.getSize()
+			})
 
-
-
-		/*
-		var result = {};
-		result.results = {};
-		result.results.error = "";
-		try {
-			//dump(variables.service.objects());
-			result.results.items = variables.service.objects().list(variables.bucket).execute().getItems();
-		} catch (any cfcatch) {
-			result.results.error = cfcatch.message & " " & cfcatch.detail;
 		}
-		return result.results;
-		*/
+
+		return results;
+
 	}
 
 	public function downloadToBrowser(required string downloadUrl, required string mimeType, required string fileName) {
