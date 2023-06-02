@@ -1,5 +1,5 @@
 # Google Storage for CFML
-Google Cloud Storage [(com.google.cloud.storage)](https://cloud.google.com/java/docs/reference/google-cloud-storage/latest/com.google.cloud.storage.Storage) wrapper for CFML, tested on Lucee 5.4.
+Google Cloud Storage [(com.google.cloud.storage)](https://cloud.google.com/java/docs/reference/google-cloud-storage/latest/com.google.cloud.storage.Storage) wrapper in CFML, tested on Lucee 5.4.
 
 ## Install
 1. Download all required jars from [jar-download.com](
