@@ -32,6 +32,13 @@ The followings are the public methods you can use:
 
 * getFile
 
+ Get details of file. Return struct;
+
+  ```sh
+  getFile( rrequired String fileId ) 
+  ```
+
+
 * getSignedUrl
   
  Get signed url, valid until now() + minutes passed in arguments. Return url as string;
@@ -57,6 +64,15 @@ The followings are the public methods you can use:
   ```sh
   listFiles( String prefix ) 
   ```
+---
+**NOTE**
+
+**fileId** is the full file path, without bucket;
+
+---
+
+
+
 
 * insertFile
 

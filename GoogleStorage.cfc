@@ -2,7 +2,6 @@ component displayname="GoogleStorage" output="false" accessors="true" {
 
 	property name="bucket" type="String";
 	property name="storeService" type="Object";
-	property name="credentials" type="Object";
 
 	public GoogleStorage function init(
 		required string bucket, 
@@ -24,8 +23,6 @@ component displayname="GoogleStorage" output="false" accessors="true" {
 
 		setStoreService( storage );
 
-		setCredentials( credentials );
-
 		return this;
 	}
 
@@ -39,7 +36,7 @@ component displayname="GoogleStorage" output="false" accessors="true" {
 		var BlobId = CreateObject("java", "com.google.cloud.storage.BlobId");
 
 		var uri = getStoreService().signUrl(
-					blobInfo.newBuilder(BlobId.of(getBucket(), arguments.fileId)).build(), 
+					blobInfo.newBuilder(BlobId.of( getBucket(), arguments.fileId ) ).build(), 
 					arguments.minutes,
 					CreateObject("java", "java.util.concurrent.TimeUnit").MINUTES,
 					[]
@@ -52,29 +49,16 @@ component displayname="GoogleStorage" output="false" accessors="true" {
 	/**
 	 * 
 	 */
-	public struct function getFile(
-         required String fileId,
-         String path
+	public Struct function getFile(
+         required String fileId
       ) {
-		var result = {};
-		result.results = {};
-		result.results.error = "";
-		
-		try {
-         
-			if ( !isNull( path ) ) {
-				title = "#path#/#title#";
-			}
 
-			result.results = variables.service.objects().get(variables.bucket, title).execute();
-		
-		} catch (any cfcatch) {
-			
-			result.results.error = cfcatch.message & " " & cfcatch.detail;
-		
-		}
-		
-		return result.results;
+		var blobId = CreateObject("java", "com.google.cloud.storage.BlobId");
+
+		var obj = getStoreService().get( blobId.of( getBucket(), arguments.fileId ) );
+
+		return createFile( obj );;
+
 	}
 
 

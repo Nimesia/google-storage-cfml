@@ -91,6 +91,7 @@
 
 </cfif>
 
+
 <cfif action IS "getFile">
 
 	<cfset storage = loadStorage()>
@@ -105,7 +106,9 @@
 		mimeType="image/png"
 	)>
 
-	<cfdump var="#result#">
+	<cfset obj = storage.getFile( fileId )>
+
+	<cfdump var="#obj#">
 
 </cfif>
 
