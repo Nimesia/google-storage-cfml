@@ -6,6 +6,7 @@
 ])>
 
 <p>
+	<a href="?">Start</a> |
 	Methods:
 	<cfoutput query="#menuItems#">
 		<a href="?action=#item#">#item#</a> |
@@ -16,16 +17,15 @@
 
 	<cfset storage = loadStorage()>
 
-	<cfset fileName = ExpandPath('/tests/assets/img/home-#RandRange(1,4)#.png')>
+	<cfset filePath = ExpandPath('/tests/assets/img/home-#RandRange(1,4)#.png')>
 
-	<cfset fileId = "tests/#TimeFormat(now(), 'HHmmss')#-#ListLast(fileName, '\')#">
+	<cfset fileId = "tests/#TimeFormat(now(), 'HHmmss')#-#ListLast(filePath, '\')#">
 	
 	<cfset result = storage.insertFile( 
-		filename=filename,
+		filePath=filePath,
 		fileId=fileId,
 		mimeType="image/png"
 	)>
-
 
 	<cfset result = storage.downloadFile( 
 		fileId=result.fileId,
@@ -41,12 +41,12 @@
 
 	<cfset storage = loadStorage()>
 
-	<cfset fileName = ExpandPath('/tests/assets/img/home-#RandRange(1,4)#.png')>
+	<cfset filePath = ExpandPath('/tests/assets/img/home-#RandRange(1,4)#.png')>
 
-	<cfset fileId = "tests/#TimeFormat(now(), 'HHmmss')#-#ListLast(fileName, '\')#">
+	<cfset fileId = "tests/#TimeFormat(now(), 'HHmmss')#-#ListLast(filePath, '\')#">
 	
 	<cfset result = storage.insertFile( 
-		filename=filename,
+		filePath=filePath,
 		fileId=fileId,
 		mimeType="image/png"
 	)>
@@ -61,12 +61,12 @@
 
 	<cfset storage = loadStorage()>
 
-	<cfset fileName = ExpandPath('/tests/assets/img/home-#RandRange(1,4)#.png')>
+	<cfset filePath = ExpandPath('/tests/assets/img/home-#RandRange(1,4)#.png')>
 
-	<cfset fileId = "tests/#TimeFormat(now(), 'HHmmss')#-#ListLast(fileName, '\')#">
+	<cfset fileId = "tests/#TimeFormat(now(), 'HHmmss')#-#ListLast(filePath, '\')#">
 	
 	<cfset result = storage.insertFile( 
-		filename=filename,
+		filePath=filePath,
 		fileId=fileId,
 		mimeType="image/png"
 	)>
@@ -81,12 +81,12 @@
 
 	<cfset storage = loadStorage()>
 
-	<cfset fileName = ExpandPath('/tests/assets/img/home-#RandRange(1,4)#.png')>
+	<cfset filePath = ExpandPath('/tests/assets/img/home-#RandRange(1,4)#.png')>
 
-	<cfset fileId = "tests/#TimeFormat(now(), 'HHmmss')#-#ListLast(fileName, '\')#">
+	<cfset fileId = "tests/#TimeFormat(now(), 'HHmmss')#-#ListLast(filePath, '\')#">
 	
 	<cfset result = storage.insertFile( 
-		filename=filename,
+		filePath=filePath,
 		fileId=fileId,
 		mimeType="image/png"
 	)>
@@ -101,12 +101,12 @@
 
 	<cfset storage = loadStorage()>
 
-	<cfset fileName = ExpandPath('/tests/assets/img/home-#RandRange(1,4)#.png')>
+	<cfset filePath = ExpandPath('/tests/assets/img/home-#RandRange(1,4)#.png')>
 
-	<cfset fileId = "tests/#TimeFormat(now(), 'HHmmss')#-#ListLast(fileName, '\')#">
+	<cfset fileId = "tests/#TimeFormat(now(), 'HHmmss')#-#ListLast(filePath, '\')#">
 	
 	<cfset result = storage.insertFile( 
-		filename=filename,
+		filePath=filePath,
 		fileId=fileId,
 		mimeType="image/png"
 	)>
@@ -120,12 +120,12 @@
 
 	<cfset storage = loadStorage()>
 	
-	<cfset fileName = ExpandPath('/tests/assets/img/home-#RandRange(1,4)#.png')>
+	<cfset filePath = ExpandPath('/tests/assets/img/home-#RandRange(1,4)#.png')>
 
-	<cfset fileId = "tests/#TimeFormat(now(), 'HHmmss')#-#ListLast(fileName, '\')#">
+	<cfset fileId = "tests/#TimeFormat(now(), 'HHmmss')#-#ListLast(filePath, '\')#">
 	
 	<cfset result = storage.insertFile( 
-		filename=filename,
+		filePath=filePath,
 		fileId=fileId,
 		mimeType="image/png"
 	)>

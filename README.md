@@ -71,7 +71,15 @@ Put file in bucket. Return struct of detail of file.
 Arguments:
 
   ```sh
-  insertFile( required String fileName, required String fileId, required String mimeType ) 
+  insertFile( required String fullPath, required String fileId, required String mimeType ) 
+  ```
+
+* downloadFromUrl
+
+Download file. It is possible to set the filename by passing the **fileName** argument to the method.
+
+  ```sh
+  downloadFromUrl( required String fileId, String fileName ) 
   ```
 
 > :warning: The **fileId** is the full path file, without bucket;

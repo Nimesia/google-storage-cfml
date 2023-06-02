@@ -136,9 +136,6 @@ component displayname="GoogleStorage" output="false" accessors="true" {
 	 */
 	public Void function downloadFile(required String fileId, required string mimeType) {
 	   
-		var paths  = CreateObject("java", "java.nio.file.Paths");
-		var files  = CreateObject("java", "java.nio.file.Files");
-		
 		// returns sun.nio.fs.WindowsPath instead of java.nio.file.Paths
 		var destination  = CreateObject("java", "java.io.File").init( CreateUUID() ).toPath();
 		
@@ -157,7 +154,7 @@ component displayname="GoogleStorage" output="false" accessors="true" {
 	 * 
 	 */
 	public Struct function insertFile(
-         required string filename, //filePath
+         required string filePath,
          required String fileId, 
          required string mimeType
       ) {
@@ -165,11 +162,11 @@ component displayname="GoogleStorage" output="false" accessors="true" {
 		var blobInfo = CreateObject("java", "com.google.cloud.storage.BlobInfo");
 		var BlobId = CreateObject("java", "com.google.cloud.storage.BlobId");
 
-		if ( !FileExists( arguments.fileName ) ) {
+		if ( !FileExists( arguments.filePath ) ) {
 
 			raiseError( 
 				type="FileToUploadNotExists", 
-				message="File [#arguments.fileName#] not exists"
+				message="File [#arguments.filePath#] not exists"
 			)
 
 		}
@@ -182,7 +179,7 @@ component displayname="GoogleStorage" output="false" accessors="true" {
 						.setContentType( arguments.mimeType )
 						.build(),
 					CreateObject("java", "java.io.FileInputStream")
-						.init( arguments.filename ),
+						.init( arguments.filePath ),
 					[]
 				)
 
