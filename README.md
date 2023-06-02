@@ -13,7 +13,7 @@ https://jar-download.com/artifacts/com.google.cloud/google-cloud-storage)
     }
     ```
 
-## Start
+## Usage
 
 Load class:
 
@@ -27,6 +27,21 @@ dump( storage ) //show all methods
 ```
 
 Download the Json key file from your GCP console, copy it into your project directory. 
+
+The followings are the public methods you can use:
+
+* getFile
+
+* getSignedUrl
+  
+ Get signed url valid until now() + minutes passed by arguments.
+
+  ```sh
+  getSignedUrl(required String minutes, required String fileId ) 
+  ```
+
+
+* deleteFileById
 
 
 ## For testing

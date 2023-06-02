@@ -31,7 +31,7 @@ component displayname="GoogleStorage" output="false" accessors="true" {
 
 
 	public any function getSignedUrl(
-		required Date expirationDate,
+		required Integer minutes,
 		required String GCPFile
 	) {
 
@@ -43,7 +43,7 @@ component displayname="GoogleStorage" output="false" accessors="true" {
 
 		var uri = getStoreService().signUrl(
 					blobInfo.newBuilder(BlobId.of(bucketName, blobName)).build(), 
-					10,
+					arguments.minutes,
 					CreateObject("java", "java.util.concurrent.TimeUnit").MINUTES,
 					[
 						CreateObject("java", "com.google.cloud.storage.Storage$SignUrlOption").signWith(
