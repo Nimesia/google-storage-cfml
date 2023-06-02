@@ -38,7 +38,6 @@ component displayname="GoogleStorage" output="false" accessors="true" {
 
 		var bucketName = getBucket();
 		var blobName = arguments.GCPFile;
-		var projectId = "opus-plus-dev";
 
 		var blobInfo = CreateObject("java", "com.google.cloud.storage.BlobInfo");
 		var BlobId = CreateObject("java", "com.google.cloud.storage.BlobId");

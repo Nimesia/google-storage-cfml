@@ -7,14 +7,29 @@ https://jar-download.com/artifacts/com.google.cloud/google-cloud-storage
 
 2. Copy them in "/libs" (or whatever you want) directory, and than set consequently javaSettings var in you Application.cfc:
     
-    ``
+    ```
 	this.javaSettings = {
 		LoadPaths = ["/libs" ]
     }
-    ``
+    ```
+
+## Start
+
+    ```
+    storage = GoogleStorage( 
+            bucket="YOUR_BUCKET_NAME", 
+            pathToJsonFile=ExpandPath("/path/keys.json") 
+        )
+
+    dump( storage ) //all methods
+
+    ```
+
+    Download the Json key file from your GCP console, copy them into your project. 
+
 
 ## For testing
 
 1. Download the keys json file from your GCP console, copy them into the test folder.
 
-2. Fit the values in the "loadStorage()" function in tests/index.cfm
+2. Fit the values in the "loadStorage()" function in /tests/index.cfm
