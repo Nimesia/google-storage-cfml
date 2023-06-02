@@ -60,7 +60,7 @@ component displayname="GoogleStorage" output="false" accessors="true" {
 	 * 
 	 */
 	public struct function getFile(
-         required String title,
+         required String fileId,
          String path
       ) {
 		var result = {};
@@ -166,7 +166,7 @@ component displayname="GoogleStorage" output="false" accessors="true" {
 	 */
 	public Struct function insertFile(
          required string filename, //filePath
-         required String title, 
+         required String fileId, 
          required string mimeType
       ) {
 
@@ -186,7 +186,7 @@ component displayname="GoogleStorage" output="false" accessors="true" {
 
 			var obj = getStoreService().create(
 					blobInfo
-						.newBuilder( BlobId.of( getBucket(), arguments.title ))
+						.newBuilder( BlobId.of( getBucket(), arguments.fileId ))
 						.setContentType( arguments.mimeType )
 						.build(),
 					CreateObject("java", "java.io.FileInputStream")

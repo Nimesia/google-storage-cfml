@@ -34,14 +34,38 @@ The followings are the public methods you can use:
 
 * getSignedUrl
   
- Get signed url valid until now() + minutes passed by arguments.
+ Get signed url, valid until now() + minutes passed in arguments. Return url as string;
 
   ```sh
-  getSignedUrl(required String minutes, required String fileId ) 
+  getSignedUrl( required String minutes, required String fileId ) 
   ```
 
-
 * deleteFileById
+
+ Remove file by name. Return boolean.
+
+  ```sh
+  deleteFileById( required String fileId ) 
+  ```
+
+* listFiles
+
+ Get files in bucket. Return array of struct.
+
+ You can search for files (including path) starting with **prefix** argument
+
+  ```sh
+  listFiles( String prefix ) 
+  ```
+
+* insertFile
+
+Put file in bucket. Return struct of detail of file.
+Arguments:
+
+  ```sh
+  insertFile( required String fileName, required String fileId, required String mimeType ) 
+  ```
 
 
 ## For testing
