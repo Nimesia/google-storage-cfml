@@ -1,10 +1,16 @@
-component displayname="GoogleStorage" output="false" {
+component displayname="GoogleStorage" output="false" accessors="true" {
+
+	property name="bucket" type="String";
+	property name="pathToKeyFile" type="String";
+	property name="storeService" type="Object";
+	property name="credentials" type="Object";
 
 	public GoogleStorage function init(
 		required string serviceAccountId, 
 		required string bucket, 
 		required string serviceAccountEmail, 
 		required string pathToKeyFile, 
+		required string pathToJsonFile, 
 		required string applicationName
 	) {
 
@@ -20,7 +26,7 @@ component displayname="GoogleStorage" output="false" {
 		variables.storageScopes     = CreateObject("java", "com.google.api.services.storage.StorageScopes");
 		variables.Collections       = CreateObject("java", "java.util.Collections");
 		variables.Arrays            = CreateObject("java", "java.util.Arrays");
-		//variables.credential        = "";
+		variables.credential        = "";
 		variables.service           = "";
 
 		variables.storageBuilder = CreateObject("java", "com.google.api.services.storage.Storage$Builder")
@@ -29,6 +35,29 @@ component displayname="GoogleStorage" output="false" {
 											variables.JSONFactory, 
 											NullValue()
 										);
+
+		/**********************************/
+		setPathToKeyFile( arguments.pathToKeyFile );
+		setBucket( arguments.bucket );
+
+		var configFile = CreateObject("java", "java.io.FileInputStream").init( arguments.pathToJsonFile );
+
+		var credentials = CreateObject("java", "com.google.auth.oauth2.ServiceAccountCredentials")
+							.fromStream( configFile );
+
+		var storage = CreateObject("java", "com.google.cloud.storage.StorageOptions")
+						.newBuilder()
+						.setCredentials( credentials )
+						.setProjectId("opus-plus-dev")
+						.build()
+						.getService();
+
+		setStoreService( storage );
+
+		setCredentials( credentials );
+
+
+		/**********************************/										
 
 		return this;
 	}
@@ -92,94 +121,109 @@ component displayname="GoogleStorage" output="false" {
 		//abort;
 
 		return result;
-	}
+	}	
 
-	// Get private key object from unencrypted PKCS#8 file content
-	private String function getPrivateKey(){
-
-		var data = FileRead( expandPath('/google-conf.json') );
-
-		var config = DESerializeJSON( data );
-
-		// Remove extra characters in private key.
-		realPK = config.private_key
-					.replaceAll("-----END PRIVATE KEY-----", "")
-					.replaceAll("-----BEGIN PRIVATE KEY-----", "")
-					.replaceAll("\n", "");
-
-		dump(label="realPK", var="#realPK#")
-
-		return realPK;
-	}
-
-	public any function getCanonicalRequest(
-		required String resource
+	/*
+	public GoogleStorage function init(
+		required string bucket, 
+		required string pathToKeyFile, 
 	) {
 
-		var now = now();
+		setPathToKeyFile( arguments.pathToKeyFile );
+		setBucket( arguments.bucket );
 
-		var start = DateFormat( now, "YYYYMMDD") & "'T'" & TimeFormat( now, "MMNNss") & "'Z'";
-		//var end = DateAdd( "s", now, 1000 );
-		var end = 604800;
+		var configFile = CreateObject("java", "java.io.FileInputStream").init( arguments.pathToKeyFile );
 
-		var scope = "#DateFormat(now(), 'HHHHMMDD')#/us-central1/storage/goog4_request"
+		var credentials = CreateObject("java", "com.google.auth.oauth2.ServiceAccountCredentials")
+							.fromStream( configFile );
 
-		var credential ="#variables.serviceAccountEmail#%2F#scope#"
+		var storage = CreateObject("java", "com.google.cloud.storage.StorageOptions")
+						.newBuilder()
+						.setProjectId(projectId)
+						.build()
+						.getService();
 
-		var canonical = "X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=#credential#&X-Goog-Date=#start#&X-Goog-Expires=#end#"
+		setService( storage );
 
-		var args = {
-			verb = "GET",
-			resource = URLEncode( arguments.resource ),
-			canonical = URLEncode( canonical ),
+
+		setCredentials( credentials );
+
+		return this;
+	}
+	*/
+
+	/**
+	 * creates storage object
+	 */
+	public struct function build() {
+
+		var result = {};
+		
+		result.credential = "";
+		result.result = {};
+		result.result.success = true;
+		result.result.error = "";
+		
+		/*  
+			Access tokens issued by the Google OAuth 2.0 Authorization Server expire in one hour. 
+        	When an access token obtained using the assertion flow expires, then the application should 
+         	generate another JWT, sign it, and request another access token. 
+         	"https://www.googleapis.com/auth/drive","https://www.googleapis.com/auth/analytics"
+         	https://developers.google.com/accounts/docs/OAuth2ServiceAccount 
+		*/
+		try {
+
+			var keyFile = CreateObject("java", "java.io.File").init( variables.pathToKeyFile );
+
+			result.credential = credentialBuilder
+                                    .setTransport( variables.HTTPTransport )
+                                    .setJsonFactory( variables.JSONFactory )
+                                    .setServiceAccountId( variables.serviceAccountId )
+                                    .setServiceAccountScopes( variables.Collections.singleton( variables.storageScopes.DEVSTORAGE_READ_WRITE ) )
+                                    .setServiceAccountPrivateKeyFromP12File( keyFile )
+                                    .build();
+
+		} catch (any cfcatch) {
+			result.result.error = "Credential Object Error: " & cfcatch.message & " - " & cfcatch.detail;
+			result.result.success = false;
+		}
+		if ( result.result.success ) {
+			
+			try {
+
+				variables.service = variables.storageBuilder
+            		.setApplicationName( variables.applicationName )
+            		.setHttpRequestInitializer( result.credential )
+            		.build();
+			
+			} catch (any cfcatch) {
+				
+				result.result.error = "Storage Object Error: " & cfcatch.message & " - " & cfcatch.detail;
+				result.result.success = false;
+			
+			}
 		}
 
 
+		//dump( variables.service );
+		//abort;
+
+		return result;
 	}
 
-	/*
 	public any function getSignedUrl(
 		required Date expirationDate,
-		required String filePath
+		required String GCPFile
 	) {
 
-		var bucketName = variables.bucket;
-		var blobName = filePath;
-
-
-		var keyFile = CreateObject( 'java', 'java.io.FileInputStream' ).init( ExpandPath( '/google-config.json' ) )
-
-		var storageOption = CreateObject("java", "com.google.cloud.storage.StorageOptions");
-
-		var credentials = CreateObject( 'java', 'com.google.auth.oauth2.ServiceAccountCredentials' ).fromStream( keyFile );
-
-
-		// load storage with direct invocations of java functions
-		var storage = storageOption.newBuilder();
-			storage.setCredentials( credentials ) 
-				.build()
-				.getService();
-
-		dump( storage );
-
-
-		return ret;
-
-	}	
-	*/
- 
-	public any function getSignedUrl(
-		required Date expirationDate,
-		required String filePath
-	) {
-
-		var bucketName = variables.bucket;
-		var blobName = filePath;
+		var bucketName = getBucket();
+		var blobName = arguments.GCPFile;
 		var projectId = "opus-plus-dev";
 
 		var blobInfo = CreateObject("java", "com.google.cloud.storage.BlobInfo");
 		var BlobId = CreateObject("java", "com.google.cloud.storage.BlobId");
 
+		/*
 		var configFile = CreateObject("java", "java.io.FileInputStream").init( ExpandPath('/opus-plus-dev-b98b738d31f2.json') );
 
 		var storage = CreateObject("java", "com.google.cloud.storage.StorageOptions")
@@ -190,15 +234,16 @@ component displayname="GoogleStorage" output="false" {
 
 		var credentials = CreateObject("java", "com.google.auth.oauth2.ServiceAccountCredentials")
 							.fromStream( configFile );
+		*/
 
 
-		var uri = storage.signUrl(
+		var uri = getStoreService().signUrl(
 					blobInfo.newBuilder(BlobId.of(bucketName, blobName)).build(), 
 					10,
 					CreateObject("java", "java.util.concurrent.TimeUnit").MINUTES,
 					[
 						CreateObject("java", "com.google.cloud.storage.Storage$SignUrlOption").signWith(
-							credentials 
+							getCredentials()
 						)
 					]
 				);
@@ -286,7 +331,7 @@ component displayname="GoogleStorage" output="false" {
 		result.results = {};
 		result.results.error = "";
 		try {
-			dump(variables.service.objects());
+			//dump(variables.service.objects());
 			result.results.items = variables.service.objects().list(variables.bucket).execute().getItems();
 		} catch (any cfcatch) {
 			result.results.error = cfcatch.message & " " & cfcatch.detail;
@@ -322,6 +367,8 @@ component displayname="GoogleStorage" output="false" {
 	/**
 	 * 
 	 */
+	<!----
+		ORIGINALE 
 	public struct function insertFile(
          required string filename,
          required String title, 
@@ -355,5 +402,95 @@ component displayname="GoogleStorage" output="false" {
 		
 		return local.results;
 	}
+	------------------>
+
+	public struct function insertFile(
+         required string filename, //filePath
+         required String title, 
+         required string mimeType,
+         String path
+      ) {
+
+		var blobInfo = CreateObject("java", "com.google.cloud.storage.BlobInfo");
+		var BlobId = CreateObject("java", "com.google.cloud.storage.BlobId");
+
+		var b64file = ToBase64(fileReadBinary( arguments.filename ));
+
+		var res = getStoreService().create(
+			blobInfo
+				.newBuilder( BlobId.of( getBucket(), arguments.title ))
+				.setContentType( arguments.mimeType )
+				.build(),
+			CreateObject("java", "java.io.FileInputStream").init( arguments.filename ),
+			[]
+		)
+
+		dump(res); 
+
+
+		/*
+		var contentFile = CreateObject("java", "java.io.FileInputStream").init( arguments.filename );
+		var blobInfo = CreateObject("java", "com.google.cloud.storage.BlobInfo");
+		var BlobId = CreateObject("java", "com.google.cloud.storage.BlobId");
+
+		var service = getStoreService();
+
+		var u = service.signUrl(
+			blobInfo.newBuilder(BlobId.of( getBucket(), arguments.title )).build(), 
+			1,
+			CreateObject("java", "java.util.concurrent.TimeUnit").MINUTES,
+			[]
+			//CreateObject("java", "java.io.FileInputStream").init( arguments.filename ),
+		)
+
+		dump(u.toString());
+
+		//dump( service );
+		abort;
+		
+
+		var blobInfo = CreateObject("java", "com.google.cloud.storage.BlobInfo");
+		var BlobId = CreateObject("java", "com.google.cloud.storage.BlobId");
+
+		service.createFrom(
+			blobInfo.newBuilder(BlobId.of( getBucket(), arguments.title )).build(), 
+			CreateObject("java", "java.io.FileInputStream").init( arguments.filename ),
+			[
+				CreateObject("java", "com.google.cloud.storage.Storage$BlobWriteOption")
+			]
+		)
+		*/
+
+		abort;
+		
+		<!--------
+		local.results = {};
+		local.results.error = "";
+		
+		try {
+
+        	if ( !isNull( path ) ) {
+            	title = "#path#/#title#";
+         	}
+
+			var body = CreateObject("java", "com.google.api.services.storage.model.StorageObject")
+						.init()
+                    	.setName( title );
+
+			var fileContent = CreateObject("java", "java.io.File").init( filename );
+			var mediaContent = CreateObject("java", "com.google.api.client.http.FileContent").init(mimeType, fileContent);
+			
+			local.results = variables.service.objects().insert( variables.bucket, body, mediaContent ).execute();
+
+		} catch (any cfcatch) {
+
+			local.results.error = cfcatch.message & " " & cfcatch.detail;
+		
+		}
+		
+		return local.results;
+		--------->
+	}
+
 
 }
