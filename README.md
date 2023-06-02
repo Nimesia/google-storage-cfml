@@ -64,15 +64,6 @@ The followings are the public methods you can use:
   ```sh
   listFiles( String prefix ) 
   ```
----
-**NOTE**
-
-**fileId** is the full file path, without bucket;
-
----
-
-
-
 
 * insertFile
 
@@ -82,6 +73,8 @@ Arguments:
   ```sh
   insertFile( required String fileName, required String fileId, required String mimeType ) 
   ```
+
+> :warning: The **fileId** is the full path file, without bucket;
 
 
 ## For testing

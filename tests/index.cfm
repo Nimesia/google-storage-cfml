@@ -2,7 +2,7 @@
 <cfparam name="action" default="">
 
 <cfset menuItems = QueryNew("item", "varchar", [
-	["insertFile"],	["listFiles" ], ["deleteFileById"], ["getSignedUrl"], ["getFile"], ["downloadFile"] 
+	["insertFile"],	["listFiles" ], ["deleteFileById"], ["getSignedUrl"], ["getFile"], ["downloadFile"], ["downloadFromUrl"] 
 ])>
 
 <p>
@@ -16,20 +16,44 @@
 
 	<cfset storage = loadStorage()>
 
-	<cfabort>
+	<cfset fileName = ExpandPath('/tests/assets/img/home-#RandRange(1,4)#.png')>
+
+	<cfset fileId = "tests/#TimeFormat(now(), 'HHmmss')#-#ListLast(fileName, '\')#">
 	
-	<cfset result = storage.downloadFile( 
+	<cfset result = storage.insertFile( 
+		filename=filename,
 		fileId=fileId,
-		type="image/png"
+		mimeType="image/png"
+	)>
+
+
+	<cfset result = storage.downloadFile( 
+		fileId=result.fileId,
+		mimeType="image/png"
 	)>
 	
 	<cfdump var="#result#">
-	<cfabort>
+
+</cfif>
+
+
+<cfif action is "downloadFromUrl">
+
+	<cfset storage = loadStorage()>
+
+	<cfset fileName = ExpandPath('/tests/assets/img/home-#RandRange(1,4)#.png')>
+
+	<cfset fileId = "tests/#TimeFormat(now(), 'HHmmss')#-#ListLast(fileName, '\')#">
 	
-	<cfset fileId = "test#randRange(1,199)#">
-	<cfset path = "folder/folder2">
+	<cfset result = storage.insertFile( 
+		filename=filename,
+		fileId=fileId,
+		mimeType="image/png"
+	)>
+
+	<cfset result = storage.downloadFromUrl( fileId=result.fileId, fileName=CreateUUID() & ".png" )>
 	
-	<cfdump var="#storage.listFiles(fileId=fileId, path=path)#">
+	<cfdump var="#result#">
 
 </cfif>
 
@@ -47,7 +71,7 @@
 		mimeType="image/png"
 	)>
 
-	<cfset uri = storage.getSignedUrl( result.name, 10 )>
+	<cfset uri = storage.getSignedUrl( result.fileId, 10 )>
 
 	<cfdump var="#uri#">
 
@@ -67,7 +91,7 @@
 		mimeType="image/png"
 	)>
 
-	<cfset res = storage.deleteFileById( result.name )>
+	<cfset res = storage.deleteFileById( result.fileId )>
 
 	<cfdump var="#res#">
 

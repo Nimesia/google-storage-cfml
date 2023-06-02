@@ -1,7 +1,7 @@
 component displayname="GoogleStorage" output="false" accessors="true" {
 
 	property name="bucket" type="String";
-	property name="storeService" type="Object";
+	property name="service" type="Object";
 
 	public GoogleStorage function init(
 		required string bucket, 
@@ -21,12 +21,14 @@ component displayname="GoogleStorage" output="false" accessors="true" {
 						.build()
 						.getService();
 
-		setStoreService( storage );
+		setService( storage );
 
 		return this;
 	}
 
-
+	/**
+	 * 
+	 */
 	public any function getSignedUrl(
 		required String fileId,
 		required Numeric minutes
@@ -35,7 +37,7 @@ component displayname="GoogleStorage" output="false" accessors="true" {
 		var blobInfo = CreateObject("java", "com.google.cloud.storage.BlobInfo");
 		var BlobId = CreateObject("java", "com.google.cloud.storage.BlobId");
 
-		var uri = getStoreService().signUrl(
+		var uri = getService().signUrl(
 					blobInfo.newBuilder(BlobId.of( getBucket(), arguments.fileId ) ).build(), 
 					arguments.minutes,
 					CreateObject("java", "java.util.concurrent.TimeUnit").MINUTES,
@@ -55,24 +57,22 @@ component displayname="GoogleStorage" output="false" accessors="true" {
 
 		var blobId = CreateObject("java", "com.google.cloud.storage.BlobId");
 
-		var obj = getStoreService().get( blobId.of( getBucket(), arguments.fileId ) );
+		var obj = getService().get( blobId.of( getBucket(), arguments.fileId ) );
 
 		return createFile( obj );;
 
 	}
-
 
 	/**
 	 * 
 	 */
 	public Boolean function deleteFileById(required string fileId) {
 
-		var result = getStoreService().delete( getBucket(), arguments.fileId, [] );
+		var result = getService().delete( getBucket(), arguments.fileId, [] );
 
 		return result;
 
 	}
-
 
 	/**
 	 * 
@@ -87,7 +87,7 @@ component displayname="GoogleStorage" output="false" accessors="true" {
 		var options = CreateObject("java", "com.google.cloud.storage.Storage$BlobListOption")
 						//.prefix( 'opus-dev-bucket' );
 		
-		var record = getStoreService().list( 
+		var record = getService().list( 
 				getBucket(), 
 				[ 
 					options
@@ -113,29 +113,44 @@ component displayname="GoogleStorage" output="false" accessors="true" {
 
 	}
 
-	public function downloadToBrowser(required string downloadUrl, required string mimeType, required string fileName) {
-		fname    = ReReplace(fileName,"[[:space:]]","_","ALL");
-		tempDir  = getTempDirectory();
-		tempFile = getFileFromPath(getTempFile(tempDir, fname));
-		cfhttp( getAsBinary=true, url=downloadUrl, result="get", method="get" );
+	/**
+	 * 
+	 */
+	public Void function downloadFromUrl(required String fileId, String fileName="" ) {
+
+		var uri = getSignedUrl( fileId, 3 )
+
+		var fname = Len( arguments.fileName ) ? arguments.fileName : arguments.fileId;
+
+		cfhttp( getAsBinary=true, url=uri, result="result", method="get" );
+
 		cfheader( name="Content-Disposition", value="attachment; filename=#fname#" );
-		cfcontent( reset=true, variable=ToBinary(ToBase64(get.fileContent)), type="text/plain" );
+		
+		cfcontent( reset=true, variable=ToBinary(ToBase64(result.fileContent)), type="text/plain" );
+
 	}
+
 
 	/**
 	 * 
 	 */
-	public function downloadFile(required string title, required string type) {
-       
-      if ( !isNull( path ) ) {
-         title = "#path#/#title#";
-      }
+	public Void function downloadFile(required String fileId, required string mimeType) {
+	   
+		var paths  = CreateObject("java", "java.nio.file.Paths");
+		var files  = CreateObject("java", "java.nio.file.Files");
 		
-		//var download = variables.service.objects().get(variables.bucket, title).executeMediaAsInputStream();
-		var download = variables.service.objects().get(variables.bucket, title);
+		// returns sun.nio.fs.WindowsPath instead of java.nio.file.Paths
+		var destination  = CreateObject("java", "java.io.File").init( CreateUUID() ).toPath();
+		
+		var blobId = CreateObject("java", "com.google.cloud.storage.BlobId");
 
-		cfheader( name="Content-Disposition", value="attachment; filename=#title#.#type#" );
-		cfcontent( reset=true, variable=ToBinary(ToBase64(download.readAllBytes())) );
+		getService().downloadTo( 
+			blobId.of( getBucket(), arguments.fileId ), 
+			// Raise error
+			// Method downloadTo(com.google.cloud.storage.BlobId, sun.nio.fs.WindowsPath) not found
+			destination 
+		);
+
 	}
 
 	/**
@@ -161,7 +176,7 @@ component displayname="GoogleStorage" output="false" accessors="true" {
 
 		try{
 
-			var obj = getStoreService().create(
+			var obj = getService().create(
 					blobInfo
 						.newBuilder( BlobId.of( getBucket(), arguments.fileId ))
 						.setContentType( arguments.mimeType )
@@ -199,7 +214,7 @@ component displayname="GoogleStorage" output="false" accessors="true" {
 
 		var result = {
 			"size" = obj.getSize(),
-			"name" = obj.getName(),
+			"fileId" = obj.getName(),
 			"bucket" = obj.getBlobId().getBucket(),
 			"createdAd" = epochToDate( obj.getCreateTime() )
 		}
