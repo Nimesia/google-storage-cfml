@@ -91,7 +91,7 @@ Download file. It is possible to set the filename by passing the **fileName** ar
 > :warning: The **fileId** is the full path offile on GPC, without bucket.
 
 
-## For testing (very simple)
+## For simple testing
 
 1. Use CommandBox. Start server and point your brower to http://127.0.0.1:9011/tests/index.cfm
 
