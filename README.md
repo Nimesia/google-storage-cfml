@@ -75,10 +75,10 @@ Put file in bucket. Return struct of detail of file.
 
 Arguments:
 
-      - filePath: full path of file to upload
-      - fileId: full path of file on GPC, without bucket name
-      - mimeType: mime type of file
-
+      - filePath: full path of file to upload. Required
+      - fileId: full path of file on GPC, without bucket name. Required
+      - mimeType: mime type of file. Required
+      - metadata: key/value struct to add to the object
 
 * downloadFromUrl
 
