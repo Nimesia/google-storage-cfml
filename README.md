@@ -101,4 +101,4 @@ Download file. It is possible to set the filename by passing the **fileName** ar
 
 2. Download the keys json file from your GCP console, copy it into the tests folder.
 
-3. Fit the values in the "loadStorage()" function in /tests/index.cfm
+3. Fit the value of _pathToJsonFile_ arg in the _loadStorage()_ function in /tests/index.cfm
