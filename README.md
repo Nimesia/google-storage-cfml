@@ -7,7 +7,7 @@ https://jar-download.com/artifacts/com.google.cloud/google-cloud-storage)
 
 2. Copy them in "/libs" (or whatever you want) directory, and than set consequently javaSettings var in you Application.cfc:
     
-    ```
+    ```sh
 	this.javaSettings = {
 		LoadPaths = ["/libs" ]
     }
@@ -15,9 +15,11 @@ https://jar-download.com/artifacts/com.google.cloud/google-cloud-storage)
 
 ## Usage
 
-Load class:
+### Load class
 
-```
+Download the Json key file from your GCP console, copy it into your project directory. 
+
+```sh
 var storage = mew GoogleStorage( 
         bucket="YOUR_BUCKET_NAME", 
         pathToJsonFile=ExpandPath("/path/keys.json") 
@@ -26,7 +28,9 @@ var storage = mew GoogleStorage(
 dump( storage ) //show all methods
 ```
 
-Download the Json key file from your GCP console, copy it into your project directory. 
+---
+
+### Methods
 
 The followings are the public **methods** you can use:
 
@@ -35,7 +39,7 @@ The followings are the public **methods** you can use:
  Get details of file. Return struct.
 
   ```sh
-  getFile( rrequired String fileId ) 
+  getFile( required String fileId ) 
   ```
 
 
@@ -70,7 +74,7 @@ The followings are the public **methods** you can use:
 Put file in bucket. Return struct of detail of file.
 
   ```sh
-  insertFile( required String filePath, required String fileId, required String mimeType ) 
+  insertFile( required String filePath, required String fileId, required String mimeType, Struct metadata ) 
   ```
 
 Arguments:
@@ -78,7 +82,7 @@ Arguments:
       - filePath: full path of file to upload. Required
       - fileId: full path of file on GPC, without bucket name. Required
       - mimeType: mime type of file. Required
-      - metadata: key/value struct to add to the object
+      - metadata: optional data in a key/value struct to add to the object
 
 * downloadFromUrl
 
