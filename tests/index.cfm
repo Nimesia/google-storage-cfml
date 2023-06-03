@@ -108,7 +108,8 @@
 	<cfset result = storage.insertFile( 
 		filePath=filePath,
 		fileId=fileId,
-		mimeType="image/png"
+		mimeType="image/png",
+		metadata={'key1' = 'value1', 'key2' = 'value2'}
 	)>
 
 	<cfdump var="#result#">

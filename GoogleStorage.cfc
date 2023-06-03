@@ -154,13 +154,23 @@ component displayname="GoogleStorage" output="false" accessors="true" {
 	 * 
 	 */
 	public Struct function insertFile(
-         required string filePath,
+         required String filePath,
          required String fileId, 
-         required string mimeType
+         required String mimeType,
+         	      Struct metadata={}
       ) {
 
+		var options = arguments.metadata;
+
+		var map      = CreateObject("java", "java.util.Hashtable").init();
+		var blobId   = CreateObject("java", "com.google.cloud.storage.BlobId");
 		var blobInfo = CreateObject("java", "com.google.cloud.storage.BlobInfo");
-		var BlobId = CreateObject("java", "com.google.cloud.storage.BlobId");
+
+		if ( options.len() ) {
+			options.each( function( key ) {
+				map.put( key, options[ key ] );
+			}) ;
+		}
 
 		if ( !FileExists( arguments.filePath ) ) {
 
@@ -176,6 +186,7 @@ component displayname="GoogleStorage" output="false" accessors="true" {
 			var obj = getService().create(
 					blobInfo
 						.newBuilder( BlobId.of( getBucket(), arguments.fileId ))
+						.setMetadata( map )
 						.setContentType( arguments.mimeType )
 						.build(),
 					CreateObject("java", "java.io.FileInputStream")
