@@ -70,7 +70,7 @@ The followings are the public **methods** you can use:
 Put file in bucket. Return struct of detail of file.
 
   ```sh
-  insertFile( required String fullPath, required String fileId, required String mimeType ) 
+  insertFile( required String filePath, required String fileId, required String mimeType ) 
   ```
 
 Arguments:
