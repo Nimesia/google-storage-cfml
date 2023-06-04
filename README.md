@@ -109,4 +109,4 @@ Alessio De Padova <alessio.de.padova95@gmail.com> to start the project.
 
 The [Lucee community](https://dev.lucee.org/) for support.
 
-Bruce Springstee for all the music.
+Bruce Springsteen for all the music.
