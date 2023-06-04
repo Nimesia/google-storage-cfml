@@ -102,3 +102,11 @@ Download file. It is possible to set the filename by passing the **fileName** ar
 2. Download the keys json file from your GCP console, copy it into the tests folder.
 
 3. Fit the value of _pathToJsonFile_ arg in the _loadStorage()_ function in /tests/index.cfm
+
+## Thanks to
+
+Alessio De Padova <alessio.de.padova95@gmail.com> to start the project.
+
+The [Lucee community](https://dev.lucee.org/) for support.
+
+Bruce Springstee for all the music.
