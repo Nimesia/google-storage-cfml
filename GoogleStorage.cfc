@@ -31,7 +31,7 @@ component displayname="GoogleStorage" output="false" accessors="true" {
 	 */
 	public String function getSignedUrl(
 		required String fileId,
-		required Numeric minutes
+		required Numeric minutes=10
 	) {
 
 		var blobInfo = CreateObject("java", "com.google.cloud.storage.BlobInfo");
