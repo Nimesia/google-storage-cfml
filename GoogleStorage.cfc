@@ -118,7 +118,7 @@ component displayname="GoogleStorage" output="false" accessors="true" {
 	 */
 	public Void function downloadFromUrl(required String fileId, String fileName="" ) {
 
-		var uri = getSignedUrl( fileId, 3 )
+		var uri = getSignedUrl( fileId, 1 )
 
 		var fname = Len( arguments.fileName ) ? arguments.fileName : arguments.fileId;
 
