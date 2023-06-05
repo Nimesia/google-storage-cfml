@@ -5,7 +5,7 @@ Google Cloud Storage [(com.google.cloud.storage)](https://cloud.google.com/java/
 1. Download all required jars from [jar-download.com](
 https://jar-download.com/artifacts/com.google.cloud/google-cloud-storage)
 
-2. Copy them in "/libs" (or whatever you want) directory, and than set consequently javaSettings var in you Application.cfc:
+2. Copy them in "/libs" (or whatever you want) directory, and than set consequently _javaSettings_ var in you _Application.cfc_:
     
     ```sh
 	this.javaSettings = {
