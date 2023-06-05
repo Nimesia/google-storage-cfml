@@ -20,7 +20,7 @@ https://jar-download.com/artifacts/com.google.cloud/google-cloud-storage)
 Download the Json key file from your GCP console, copy it into your project directory. 
 
 ```sh
-var storage = mew GoogleStorage( 
+var storage = new GoogleStorage( 
         bucket="YOUR_BUCKET_NAME", 
         pathToJsonFile=ExpandPath("/path/keys.json") 
     )
